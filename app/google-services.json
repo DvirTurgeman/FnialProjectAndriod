@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "117102898545",
+    "project_id": "memorywall-c3f44",
+    "storage_bucket": "memorywall-c3f44.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117102898545:android:9ae376d79ad2c4f9cf9ad0",
+        "android_client_info": {
+          "package_name": "com.example.fnialprojectandriod"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY_JU5cilo-yUCkLt-KsHZBuU2GohiNWw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
