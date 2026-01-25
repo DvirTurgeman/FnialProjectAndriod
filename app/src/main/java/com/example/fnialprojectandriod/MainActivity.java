@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
+///// מסך הרשמה //////
 //        List<AuthUI.IdpConfig> providers = Arrays.asList(
 //                new AuthUI.IdpConfig.EmailBuilder().build()
 //                );
@@ -72,16 +72,16 @@ public class MainActivity extends AppCompatActivity {
 //                .createSignInIntentBuilder()
 //                .setAvailableProviders(providers)
 //                .build();
-//
+
 //        signInLauncher.launch(signInIntent);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Create a new user with a first and last name
         Map<String, Object> user = new HashMap<>();
-        user.put("first", "Ada");
-        user.put("last", "Lovelace");
-        user.put("born", 1815);
+        user.put("first", "Dvir");
+        user.put("last", "Turgeman");
+        user.put("born", 2001);
 
 // Add a new document with a generated ID
         db.collection("users")
