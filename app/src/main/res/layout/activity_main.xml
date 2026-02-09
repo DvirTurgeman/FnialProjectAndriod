@@ -20,7 +20,7 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Header: Icons and Title -->
+            <!-- Header -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
                     app:tint="#333333" />
             </RelativeLayout>
 
-            <!-- Greeting Section -->
+            <!-- Greeting -->
             <TextView
                 android:id="@+id/tvGreeting"
                 android:layout_width="wrap_content"
@@ -72,7 +72,7 @@
                 android:textColor="#8E8E93"
                 android:textSize="14sp" />
 
-            <!-- Join Event Card -->
+            <!-- Join Event -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -106,13 +106,11 @@
                         android:textColor="#8E8E93"
                         android:textSize="14sp" />
 
-                    <!-- Code Boxes -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="horizontal">
-
                         <EditText android:id="@+id/code1" android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
                         <EditText android:id="@+id/code2" android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
                         <EditText android:id="@+id/code3" android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
@@ -129,25 +127,16 @@
                         android:backgroundTint="#0084FF"
                         android:text="היכנס"
                         android:textColor="#FFFFFF"
-                        android:textSize="16sp"
                         app:cornerRadius="12dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Divider -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="30dp">
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EFEFEF" android:layout_centerVertical="true"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="או" android:background="#FFFFFF" android:paddingHorizontal="15dp" android:layout_centerInParent="true" android:textColor="#BDBDBD"/>
-            </RelativeLayout>
-
-            <!-- Create Event Section -->
+            <!-- Create Event -->
             <RelativeLayout
                 android:id="@+id/btnCreateEventContainer"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
+                android:layout_marginTop="30dp"
                 android:background="@drawable/bg_dashed_border"
                 android:padding="15dp"
                 android:clickable="true"
@@ -170,7 +159,6 @@
                     android:layout_toStartOf="@id/ivPlus"
                     android:gravity="end"
                     android:orientation="vertical">
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -178,7 +166,6 @@
                         android:textColor="#0084FF"
                         android:textSize="18sp"
                         android:textStyle="bold" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -186,44 +173,12 @@
                         android:textColor="#8E8E93"
                         android:textSize="12sp" />
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:src="@android:drawable/ic_media_previous"
-                    app:tint="#0084FF" />
             </RelativeLayout>
-
-            <!-- Banner Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:layout_marginTop="30dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp">
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#E7E7FF">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="בואו נהפוך את הרגעים שלכם לזיכרון מתמשך"
-                        android:textColor="#1A1A1A"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:padding="20dp"/>
-                </RelativeLayout>
-            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Navigation Mock -->
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"

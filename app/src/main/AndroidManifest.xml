@@ -25,6 +25,7 @@
         <activity android:name=".MyEventsActivity" android:exported="false" />
         <activity android:name=".WallActivity" android:theme="@style/Theme.AppCompat.NoActionBar" android:exported="false" />
         <activity android:name=".ProfileActivity" android:exported="false" />
+        <activity android:name=".AddMemoryActivity" android:exported="false" />
 
     </application>
 

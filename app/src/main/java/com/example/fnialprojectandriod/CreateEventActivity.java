@@ -93,8 +93,9 @@ public class CreateEventActivity extends AppCompatActivity {
         db.collection("events").document(eventCode)
                 .set(event)
                 .addOnSuccessListener(aVoid -> {
-                    // 2. שמירת האירוע תחת "האירועים שלי" של המשתמש
-                    db.collection("users").document(uid).collection("myEvents").document(eventCode)
+                    // 2. הוספת האירוע לרשימת "האירועים שלי" של המשתמש
+                    db.collection("users").document(uid)
+                            .collection("myEvents").document(eventCode)
                             .set(event)
                             .addOnSuccessListener(aVoid2 -> {
                                 tvGeneratedCode.setText(eventCode);
