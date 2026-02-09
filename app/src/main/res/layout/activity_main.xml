@@ -113,12 +113,12 @@
                         android:gravity="center"
                         android:orientation="horizontal">
 
-                        <EditText android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
-                        <EditText android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
-                        <EditText android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
-                        <EditText android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
-                        <EditText android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
-                        <EditText android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
+                        <EditText android:id="@+id/code1" android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
+                        <EditText android:id="@+id/code2" android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
+                        <EditText android:id="@+id/code3" android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
+                        <EditText android:id="@+id/code4" android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
+                        <EditText android:id="@+id/code5" android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
+                        <EditText android:id="@+id/code6" android:layout_width="45dp" android:layout_height="55dp" android:layout_margin="3dp" android:background="@drawable/bg_code_box" android:gravity="center" android:inputType="number" android:maxLength="1" />
                     </LinearLayout>
 
                     <Button
@@ -139,7 +139,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="30dp">
-                <!-- תיקון כאן: layout_centerVertical במקום layout_centerInVertical -->
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EFEFEF" android:layout_centerVertical="true"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="או" android:background="#FFFFFF" android:paddingHorizontal="15dp" android:layout_centerInParent="true" android:textColor="#BDBDBD"/>
             </RelativeLayout>
@@ -150,7 +149,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:background="@drawable/bg_dashed_border"
-                android:padding="15dp">
+                android:padding="15dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <ImageView
                     android:id="@+id/ivPlus"
@@ -224,25 +225,26 @@
 
     <!-- Bottom Navigation Mock -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="#FFFFFF"
         app:elevation="8dp"
-        app:menu="@null"> 
+        app:menu="@null">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:orientation="horizontal">
-            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+            <LinearLayout android:id="@+id/navProfile" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical" android:clickable="true">
                 <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="#8E8E93"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="פרופיל" android:textSize="10sp" android:textColor="#8E8E93"/>
             </LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+            <LinearLayout android:id="@+id/navMyEvents" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical" android:clickable="true">
                 <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_agenda" app:tint="#8E8E93"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="האירועים שלי" android:textSize="10sp" android:textColor="#8E8E93"/>
             </LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+            <LinearLayout android:id="@+id/navHome" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical" android:clickable="true">
                 <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_view" app:tint="#0084FF"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ראשי" android:textSize="10sp" android:textColor="#0084FF"/>
             </LinearLayout>
