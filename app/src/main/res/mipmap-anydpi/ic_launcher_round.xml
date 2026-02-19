@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/ic_launcher_background" />
-    <foreground android:drawable="@drawable/ic_launcher_foreground" />
-    <monochrome android:drawable="@drawable/ic_launcher_foreground" />
-</adaptive-icon>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M0,0h200v200H0z" />
+
+    <group
+        android:pivotX="100"
+        android:pivotY="100"
+        android:rotation="-15">
+        <path
+            android:fillColor="#E0E0E0"
+            android:pathData="M50,40h100v120h-100z" />
+        <path
+            android:fillColor="#9E9E9E"
+            android:pathData="M58,48h84v80h-84z" />
+    </group>
+
+    <group
+        android:pivotX="100"
+        android:pivotY="105"
+        android:rotation="5">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M55,45h100v120h-100z" />
+        <path
+            android:fillColor="#333333"
+            android:pathData="M63,53h84v80h-84z" />
+
+        <path
+            android:fillColor="#9C27B0"
+            android:pathData="M105,103.5l-1.45,-1.32C98.4,97.55 95,94.47 95,90.69c0,-3.08 2.42,-5.5 5.5,-5.5c1.74,0 3.41,0.81 4.5,2.09c1.09,-1.28 2.76,-2.09 4.5,-2.09c3.08,0 5.5,2.42 5.5,5.5c0,3.78 -3.4,6.86 -8.55,11.5l-1.45,1.31z" />
+    </group>
+</vector>
