@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -83,11 +82,23 @@ public class ProfileActivity extends AppCompatActivity {
             finish();
         });
 
-        loadStatsAndEvents(user.getUid());
+        loadUserData(user.getUid());
     }
 
-    private void loadStatsAndEvents(String uid) {
-        // טעינת אירועים ועדכון הסטטיסטיקה
+    private void loadUserData(String uid) {
+        // 1. טעינת המונה מהמסמך של המשתמש
+        db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Long memoryCount = documentSnapshot.getLong("memoryCount");
+                if (memoryCount != null) {
+                    tvStatsMemories.setText(String.valueOf(memoryCount));
+                } else {
+                    tvStatsMemories.setText("0");
+                }
+            }
+        });
+
+        // 2. טעינת האירועים
         db.collection("users").document(uid).collection("myEvents")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -101,12 +112,8 @@ public class ProfileActivity extends AppCompatActivity {
                         tvStatsEvents.setText(String.valueOf(profileEvents.size()));
                     }
                 });
-        
-        // כאן בעתיד נוסיף טעינה של מספר התמונות (Memories)
-        tvStatsMemories.setText("0");
     }
 
-    // אדפטר פנימי
     private class ProfileEventAdapter extends RecyclerView.Adapter<ProfileEventAdapter.ViewHolder> {
         private List<Event> list;
         public ProfileEventAdapter(List<Event> list) { this.list = list; }

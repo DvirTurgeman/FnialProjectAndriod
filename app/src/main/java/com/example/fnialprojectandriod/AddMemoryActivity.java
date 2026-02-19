@@ -16,10 +16,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class AddMemoryActivity extends AppCompatActivity {
@@ -77,7 +81,6 @@ public class AddMemoryActivity extends AppCompatActivity {
         btnPost.setEnabled(false);
         Toast.makeText(this, "מעלה זיכרון...", Toast.LENGTH_SHORT).show();
 
-        // העלאה ל-Storage (כדי שזה יעבוד, וודא שיש לך Firebase Storage מוגדר בפרויקט)
         String fileName = "images/" + UUID.randomUUID().toString();
         StorageReference storageRef = FirebaseStorage.getInstance().getReference(fileName);
 
@@ -87,21 +90,31 @@ public class AddMemoryActivity extends AppCompatActivity {
                     saveMemoryToFirestore(greeting, imageUrl, user.getDisplayName(), eventCode);
                 }))
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "העלאת התמונה נכשלה. וודא ש-Storage מוגדר.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "העלאת התמונה נכשלה", Toast.LENGTH_LONG).show();
                     btnPost.setEnabled(true);
                 });
     }
 
     private void saveMemoryToFirestore(String greeting, String imageUrl, String userName, String eventCode) {
         if (userName == null || userName.isEmpty()) userName = "אורח";
-        
-        Memory memory = new Memory(greeting, imageUrl, userName, System.currentTimeMillis());
 
-        FirebaseFirestore.getInstance().collection("events").document(eventCode).collection("memories")
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Memory memory = new Memory(greeting, imageUrl, userName, System.currentTimeMillis());
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("events").document(eventCode).collection("memories")
                 .add(memory)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "הזיכרון פורסם בהצלחה!", Toast.LENGTH_SHORT).show();
-                    finish();
+                    // עדכון מונה הזיכרונות של המשתמש
+                    Map<String, Object> update = new HashMap<>();
+                    update.put("memoryCount", FieldValue.increment(1));
+                    
+                    db.collection("users").document(currentUserId)
+                            .set(update, SetOptions.merge())
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "הזיכרון פורסם בהצלחה!", Toast.LENGTH_SHORT).show();
+                                finish();
+                            });
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "שגיאה בפרסום", Toast.LENGTH_SHORT).show();
