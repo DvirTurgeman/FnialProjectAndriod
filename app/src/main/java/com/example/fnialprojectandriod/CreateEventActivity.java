@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -82,25 +83,28 @@ public class CreateEventActivity extends AppCompatActivity {
 
         String eventCode = String.valueOf(100000 + new Random().nextInt(900000));
 
-        Map<String, Object> event = new HashMap<>();
-        event.put("eventName", name);
-        event.put("eventDate", date);
-        event.put("eventCode", eventCode);
-        event.put("creatorUid", uid);
-        event.put("createdAt", FieldValue.serverTimestamp());
+        Event newEvent = new Event(name, date, eventCode, uid, eventCode);
 
-        // 1. שמירת האירוע באוסף הכללי
         db.collection("events").document(eventCode)
-                .set(event)
+                .set(newEvent)
                 .addOnSuccessListener(aVoid -> {
-                    // 2. הוספת האירוע לרשימת "האירועים שלי" של המשתמש
                     db.collection("users").document(uid)
-                            .collection("myEvents").document(eventCode)
-                            .set(event)
+                            .update("myEventIds", FieldValue.arrayUnion(eventCode))
                             .addOnSuccessListener(aVoid2 -> {
                                 tvGeneratedCode.setText(eventCode);
                                 layoutSuccess.setVisibility(View.VISIBLE);
                                 btnCreate.setVisibility(View.GONE);
+                            })
+                            .addOnFailureListener(e -> {
+                                // במקרה שהמסמך לא קיים, ניצור אותו עם המערך
+                                Map<String, Object> data = new HashMap<>();
+                                data.put("myEventIds", FieldValue.arrayUnion(eventCode));
+                                db.collection("users").document(uid).set(data, SetOptions.merge())
+                                        .addOnSuccessListener(aVoid3 -> {
+                                            tvGeneratedCode.setText(eventCode);
+                                            layoutSuccess.setVisibility(View.VISIBLE);
+                                            btnCreate.setVisibility(View.GONE);
+                                        });
                             });
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "שגיאה ביצירה", Toast.LENGTH_SHORT).show());

@@ -37,12 +37,7 @@
                     android:textStyle="bold"
                     android:textSize="18sp"
                     android:layout_centerInParent="true"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ערוך"
-                    android:textColor="#318CE7"
-                    android:layout_alignParentEnd="true"/>
+
             </RelativeLayout>
 
             <!-- Avatar -->
@@ -60,15 +55,6 @@
                     android:textColor="#FFFFFF"
                     android:textSize="48sp"
                     android:textStyle="bold" />
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="bottom|end"
-                    android:src="@android:drawable/ic_menu_camera"
-                    android:background="@drawable/bg_circle"
-                    android:backgroundTint="#318CE7"
-                    android:padding="6dp"
-                    app:tint="#FFFFFF"/>
             </FrameLayout>
 
             <TextView
@@ -168,12 +154,6 @@
                     android:textStyle="bold"
                     android:textSize="18sp"
                     android:layout_alignParentStart="true"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ראה הכל"
-                    android:textColor="#318CE7"
-                    android:layout_alignParentEnd="true"/>
             </RelativeLayout>
 
             <androidx.recyclerview.widget.RecyclerView

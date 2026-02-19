@@ -24,10 +24,14 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // אתחול רכיבים
         tvGreeting = findViewById(R.id.tvGreeting);
         btnJoin = findViewById(R.id.btnJoin);
         btnCreateEventContainer = findViewById(R.id.btnCreateEventContainer);
@@ -121,9 +124,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void joinEventByCode() {
-        String code = code1.getText().toString() + code2.getText().toString() + 
-                     code3.getText().toString() + code4.getText().toString() + 
-                     code5.getText().toString() + code6.getText().toString();
+        String code = code1.getText().toString() + code2.getText().toString() +
+                code3.getText().toString() + code4.getText().toString() +
+                code5.getText().toString() + code6.getText().toString();
 
         if (code.length() < 6) {
             Toast.makeText(this, "נא להזין קוד מלא (6 ספרות)", Toast.LENGTH_SHORT).show();
@@ -133,23 +136,55 @@ public class MainActivity extends AppCompatActivity {
         String uid = FirebaseAuth.getInstance().getUid();
         if (uid == null) return;
 
-        db.collection("events").document(code).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        Event event = documentSnapshot.toObject(Event.class);
-                        db.collection("users").document(uid).collection("myEvents").document(code)
-                                .set(event)
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(this, "הצטרפת לאירוע בהצלחה!", Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(this, WallActivity.class);
-                                    intent.putExtra("EVENT_CODE", code);
-                                    intent.putExtra("EVENT_NAME", event.getEventName());
-                                    startActivity(intent);
-                                });
-                    } else {
-                        Toast.makeText(this, "קוד לא תקין, אירוע לא נמצא", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        db.collection("events").document(code).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Event event = documentSnapshot.toObject(Event.class);
+
+                db.collection("users").document(uid)
+                        .update("myEventIds", FieldValue.arrayUnion(code))
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, "הצטרפת לאירוע בהצלחה!", Toast.LENGTH_SHORT).show();
+
+                            clearCodeFields(); // ניקוי השדות לפני המעבר
+
+                            Intent intent = new Intent(MainActivity.this, WallActivity.class);
+                            intent.putExtra("EVENT_CODE", code);
+                            if (event != null) {
+                                intent.putExtra("EVENT_NAME", event.getEventName());
+                            }
+                            startActivity(intent);
+                        })
+                        .addOnFailureListener(e -> {
+                            Map<String, Object> data = new HashMap<>();
+                            data.put("myEventIds", FieldValue.arrayUnion(code));
+                            db.collection("users").document(uid).set(data, SetOptions.merge())
+                                    .addOnSuccessListener(aVoid2 -> {
+                                        clearCodeFields();
+                                        Intent intent = new Intent(MainActivity.this, WallActivity.class);
+                                        intent.putExtra("EVENT_CODE", code);
+                                        if (event != null) {
+                                            intent.putExtra("EVENT_NAME", event.getEventName());
+                                        }
+                                        startActivity(intent);
+                                    });
+                        });
+            } else {
+                Toast.makeText(this, "קוד לא תקין, אירוע לא נמצא", Toast.LENGTH_SHORT).show();
+                clearCodeFields(); // ניקוי גם במקרה של קוד לא תקין
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "שגיאה בחיבור לשרת", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void clearCodeFields() {
+        code1.setText("");
+        code2.setText("");
+        code3.setText("");
+        code4.setText("");
+        code5.setText("");
+        code6.setText("");
+        code1.requestFocus(); // מחזיר את הפוקוס לתיבה הראשונה
     }
 
     private void updateUI(FirebaseUser user) {

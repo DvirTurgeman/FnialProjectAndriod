@@ -45,7 +45,6 @@ public class ProfileActivity extends AppCompatActivity {
             return;
         }
 
-        // אתחול רכיבים
         tvAvatarLetter = findViewById(R.id.tvAvatarLetter);
         tvProfileName = findViewById(R.id.tvProfileName);
         tvProfileEmail = findViewById(R.id.tvProfileEmail);
@@ -55,7 +54,6 @@ public class ProfileActivity extends AppCompatActivity {
         btnLogout = findViewById(R.id.btnLogout);
         rvProfileEvents = findViewById(R.id.rvProfileEvents);
 
-        // הגדרת נתונים בסיסיים
         String name = user.getDisplayName();
         if (name == null || name.isEmpty()) name = user.getEmail();
         
@@ -65,13 +63,11 @@ public class ProfileActivity extends AppCompatActivity {
             tvAvatarLetter.setText(String.valueOf(name.charAt(0)).toUpperCase());
         }
 
-        // הגדרת רשימה
         rvProfileEvents.setLayoutManager(new LinearLayoutManager(this));
         profileEvents = new ArrayList<>();
         adapter = new ProfileEventAdapter(profileEvents);
         rvProfileEvents.setAdapter(adapter);
 
-        // כפתורי ניווט
         btnBackProfile.setOnClickListener(v -> finish());
         
         btnLogout.setOnClickListener(v -> {
@@ -86,32 +82,36 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData(String uid) {
-        // 1. טעינת המונה מהמסמך של המשתמש
-        db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                Long memoryCount = documentSnapshot.getLong("memoryCount");
-                if (memoryCount != null) {
-                    tvStatsMemories.setText(String.valueOf(memoryCount));
+        db.collection("users").document(uid).get().addOnSuccessListener(userDoc -> {
+            if (userDoc.exists()) {
+                // 1. טעינת מונה הזיכרונות
+                Long memoryCount = userDoc.getLong("memoryCount");
+                tvStatsMemories.setText(memoryCount != null ? String.valueOf(memoryCount) : "0");
+
+                // 2. טעינת רשימת ה-IDs של האירועים
+                List<String> eventIds = (List<String>) userDoc.get("myEventIds");
+                
+                if (eventIds != null && !eventIds.isEmpty()) {
+                    tvStatsEvents.setText(String.valueOf(eventIds.size()));
+                    
+                    // 3. משיכת המידע המלא על האירועים מהקולקציה הראשית
+                    db.collection("events").whereIn("eventId", eventIds)
+                            .get()
+                            .addOnSuccessListener(eventsSnapshot -> {
+                                profileEvents.clear();
+                                for (QueryDocumentSnapshot eventDoc : eventsSnapshot) {
+                                    Event event = eventDoc.toObject(Event.class);
+                                    profileEvents.add(event);
+                                }
+                                adapter.notifyDataSetChanged();
+                            });
                 } else {
-                    tvStatsMemories.setText("0");
+                    tvStatsEvents.setText("0");
+                    profileEvents.clear();
+                    adapter.notifyDataSetChanged();
                 }
             }
         });
-
-        // 2. טעינת האירועים
-        db.collection("users").document(uid).collection("myEvents")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        profileEvents.clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Event event = document.toObject(Event.class);
-                            profileEvents.add(event);
-                        }
-                        adapter.notifyDataSetChanged();
-                        tvStatsEvents.setText(String.valueOf(profileEvents.size()));
-                    }
-                });
     }
 
     private class ProfileEventAdapter extends RecyclerView.Adapter<ProfileEventAdapter.ViewHolder> {
@@ -131,6 +131,13 @@ public class ProfileActivity extends AppCompatActivity {
             holder.tvName.setText(event.getEventName());
             holder.tvDate.setText(event.getEventDate());
             holder.tvCode.setText("#" + event.getEventCode());
+
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(ProfileActivity.this, WallActivity.class);
+                intent.putExtra("EVENT_CODE", event.getEventCode());
+                intent.putExtra("EVENT_NAME", event.getEventName());
+                startActivity(intent);
+            });
         }
 
         @Override

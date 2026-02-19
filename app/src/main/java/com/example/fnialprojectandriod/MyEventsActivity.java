@@ -46,19 +46,33 @@ public class MyEventsActivity extends AppCompatActivity {
         String uid = FirebaseAuth.getInstance().getUid();
         if (uid == null) return;
 
-        db.collection("users").document(uid).collection("myEvents")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        eventList.clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Event event = document.toObject(Event.class);
-                            eventList.add(event);
-                        }
-                        adapter.notifyDataSetChanged();
-                    }
-                });
+        db.collection("users").document(uid).get().addOnSuccessListener(userDoc -> {
+            if (userDoc.exists() && userDoc.contains("myEventIds")) {
+                List<String> eventIds = (List<String>) userDoc.get("myEventIds");
+
+                if (eventIds != null && !eventIds.isEmpty()) {
+                    db.collection("events").whereIn("eventId", eventIds)
+                            .get()
+                            .addOnSuccessListener(eventsSnapshot -> {
+                                eventList.clear(); // Clear the list that the adapter uses
+                                for (QueryDocumentSnapshot eventDoc : eventsSnapshot) {
+                                    Event event = eventDoc.toObject(Event.class);
+                                    eventList.add(event); // Add the new Event object to the correct list
+                                }
+                                adapter.notifyDataSetChanged(); // Notify the adapter that the data has changed
+                            })
+                            .addOnFailureListener(e -> {
+                                // It's good practice to log errors
+                                android.util.Log.e("MyEventsActivity", "Error loading event details", e);
+                            });
+                }
+            }
+        }).addOnFailureListener(e -> {
+            android.util.Log.e("MyEventsActivity", "Error loading user document", e);
+        });
     }
+
+
 
     // Adapter פנימי לצורך הפשטות
     private class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> {
