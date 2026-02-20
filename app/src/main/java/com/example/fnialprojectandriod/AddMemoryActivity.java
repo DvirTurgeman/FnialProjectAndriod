@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -77,6 +78,10 @@ public class AddMemoryActivity extends AppCompatActivity {
             Toast.makeText(this, "נא לכתוב ברכה", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (user == null || eventCode == null) {
+            Toast.makeText(this, "שגיאה, נסה להתחבר מחדש", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         btnPost.setEnabled(false);
         Toast.makeText(this, "מעלה זיכרון...", Toast.LENGTH_SHORT).show();
@@ -87,37 +92,40 @@ public class AddMemoryActivity extends AppCompatActivity {
         storageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     String imageUrl = uri.toString();
-                    saveMemoryToFirestore(greeting, imageUrl, user.getDisplayName(), eventCode);
+                    saveMemoryToFirestore(greeting, imageUrl, user.getDisplayName(), user.getUid(), eventCode);
                 }))
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "העלאת התמונה נכשלה", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "העלאת התמונה נכשלה", Toast.LENGTH_SHORT).show();
                     btnPost.setEnabled(true);
                 });
     }
 
-    private void saveMemoryToFirestore(String greeting, String imageUrl, String userName, String eventCode) {
+    private void saveMemoryToFirestore(String greeting, String imageUrl, String userName, String uid, String eventCode) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference memoryRef = db.collection("events").document(eventCode).collection("memories").document();
+        
+        String memoryId = memoryRef.getId();
         if (userName == null || userName.isEmpty()) userName = "אורח";
 
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Memory memory = new Memory(greeting, imageUrl, userName, System.currentTimeMillis());
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Memory memory = new Memory(memoryId, greeting, imageUrl, userName, uid, System.currentTimeMillis());
 
-        db.collection("events").document(eventCode).collection("memories")
-                .add(memory)
-                .addOnSuccessListener(documentReference -> {
-                    // עדכון מונה הזיכרונות של המשתמש
-                    Map<String, Object> update = new HashMap<>();
-                    update.put("memoryCount", FieldValue.increment(1));
-                    
-                    db.collection("users").document(currentUserId)
-                            .set(update, SetOptions.merge())
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "הזיכרון פורסם בהצלחה!", Toast.LENGTH_SHORT).show();
-                                finish();
+        memoryRef.set(memory)
+                .addOnSuccessListener(aVoid -> {
+                    // עדכון מונה הזיכרונות של המשתמש ב-Firestore
+                    db.collection("users").document(uid)
+                            .update("memoryCount", FieldValue.increment(1))
+                            .addOnFailureListener(e -> {
+                                // אם השדה או המסמך לא קיימים
+                                Map<String, Object> data = new HashMap<>();
+                                data.put("memoryCount", 1);
+                                db.collection("users").document(uid).set(data, SetOptions.merge());
                             });
+
+                    Toast.makeText(this, "הזיכרון פורסם בהצלחה!", Toast.LENGTH_SHORT).show();
+                    finish();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "שגיאה בפרסום", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "שגיאה בפרסום הזיכרון", Toast.LENGTH_SHORT).show();
                     btnPost.setEnabled(true);
                 });
     }
