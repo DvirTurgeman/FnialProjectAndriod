@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvGreeting;
     private Button btnJoin;
     private RelativeLayout btnCreateEventContainer;
-    private ImageView ivNotification;
+    //private ImageView ivNotification;
     private LinearLayout navMyEvents, navProfile;
     private EditText code1, code2, code3, code4, code5, code6;
     private FirebaseFirestore db;
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         tvGreeting = findViewById(R.id.tvGreeting);
         btnJoin = findViewById(R.id.btnJoin);
         btnCreateEventContainer = findViewById(R.id.btnCreateEventContainer);
-        ivNotification = findViewById(R.id.ivNotification);
+
         navMyEvents = findViewById(R.id.navMyEvents);
         navProfile = findViewById(R.id.navProfile);
         
@@ -110,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        ivNotification.setOnClickListener(v -> Toast.makeText(this, "אין התראות חדשות", Toast.LENGTH_SHORT).show());
 
         navMyEvents.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, MyEventsActivity.class);
