@@ -39,6 +39,17 @@
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
                     android:textStyle="bold"/>
+
+                <!-- כפתור מחיקת אירוע (רק למנהל) -->
+                <ImageView
+                    android:id="@+id/btnDeleteEvent"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="16dp"
+                    android:src="@android:drawable/ic_menu_delete"
+                    app:tint="#FF5252"
+                    android:visibility="gone"/>
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>

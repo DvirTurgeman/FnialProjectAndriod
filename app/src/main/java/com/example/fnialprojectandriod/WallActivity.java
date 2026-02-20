@@ -17,21 +17,27 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WallActivity extends AppCompatActivity {
 
     private TextView tvWallEventName;
-    private ImageView btnBackWall;
+    private ImageView btnBackWall, btnDeleteEvent;
     private RecyclerView rvWall;
     private FloatingActionButton fabAddMemory;
 
@@ -51,6 +57,7 @@ public class WallActivity extends AppCompatActivity {
 
         tvWallEventName = findViewById(R.id.tvWallEventName);
         btnBackWall = findViewById(R.id.btnBackWall);
+        btnDeleteEvent = findViewById(R.id.btnDeleteEvent);
         rvWall = findViewById(R.id.rvWall);
         fabAddMemory = findViewById(R.id.fabAddMemory);
 
@@ -62,6 +69,7 @@ public class WallActivity extends AppCompatActivity {
         }
 
         btnBackWall.setOnClickListener(v -> finish());
+        btnDeleteEvent.setOnClickListener(v -> confirmDeleteEvent());
 
         fabAddMemory.setOnClickListener(v -> {
             if (eventCode != null) {
@@ -80,12 +88,75 @@ public class WallActivity extends AppCompatActivity {
         db.collection("events").document(eventCode).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 eventCreatorUid = documentSnapshot.getString("creatorUid");
-                // רענון הרשימה כדי לעדכן את נראות כפתורי המחיקה
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
+                String currentUid = FirebaseAuth.getInstance().getUid();
+                
+                // הצגת כפתור מחיקת אירוע רק למנהל
+                if (currentUid != null && currentUid.equals(eventCreatorUid)) {
+                    btnDeleteEvent.setVisibility(View.VISIBLE);
                 }
+                
+                if (adapter != null) adapter.notifyDataSetChanged();
             }
         });
+    }
+
+    private void confirmDeleteEvent() {
+        new AlertDialog.Builder(this)
+                .setTitle("מחיקת אירוע")
+                .setMessage("האם אתה בטוח שברצונך למחוק את כל האירוע? פעולה זו תמחוק את כל התמונות ותסיר את האירוע מכל המשתתפים.")
+                .setPositiveButton("מחק הכל", (dialog, which) -> deleteFullEvent())
+                .setNegativeButton("ביטול", null)
+                .show();
+    }
+
+    private void deleteFullEvent() {
+        if (eventCode == null) return;
+        Toast.makeText(this, "מוחק אירוע, אנא המתן...", Toast.LENGTH_LONG).show();
+
+        // 1. קבלת כל הזיכרונות כדי לדעת כמה להוריד לכל משתמש
+        db.collection("events").document(eventCode).collection("memories").get()
+                .addOnSuccessListener(memorySnapshots -> {
+                    Map<String, Integer> userMemoryCounts = new HashMap<>();
+                    for (QueryDocumentSnapshot doc : memorySnapshots) {
+                        String uploader = doc.getString("uploaderUid");
+                        if (uploader != null) {
+                            userMemoryCounts.put(uploader, userMemoryCounts.getOrDefault(uploader, 0) + 1);
+                        }
+                    }
+
+                    // 2. מציאת כל המשתמשים שהשתתפו באירוע
+                    db.collection("users").whereArrayContains("myEventIds", eventCode).get()
+                            .addOnSuccessListener(userSnapshots -> {
+                                WriteBatch batch = db.batch();
+
+                                // עדכון כל משתמש: הסרת האירוע והפחתת זיכרונות
+                                for (QueryDocumentSnapshot userDoc : userSnapshots) {
+                                    String userId = userDoc.getId();
+                                    int memoriesToRemove = userMemoryCounts.getOrDefault(userId, 0);
+                                    
+                                    Map<String, Object> updates = new HashMap<>();
+                                    updates.put("myEventIds", FieldValue.arrayRemove(eventCode));
+                                    if (memoriesToRemove > 0) {
+                                        updates.put("memoryCount", FieldValue.increment(-memoriesToRemove));
+                                    }
+                                    batch.update(userDoc.getReference(), updates);
+                                }
+
+                                // 3. מחיקת כל הזיכרונות
+                                for (QueryDocumentSnapshot memDoc : memorySnapshots) {
+                                    batch.delete(memDoc.getReference());
+                                }
+
+                                // 4. מחיקת האירוע עצמו
+                                batch.delete(db.collection("events").document(eventCode));
+
+                                // ביצוע הכל כפעולה אחת (Batch)
+                                batch.commit().addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(WallActivity.this, "האירוע נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }).addOnFailureListener(e -> Toast.makeText(WallActivity.this, "שגיאה במחיקה", Toast.LENGTH_SHORT).show());
+                            });
+                });
     }
 
     private void setupRecyclerView() {
@@ -97,18 +168,13 @@ public class WallActivity extends AppCompatActivity {
 
     private void listenForMemories() {
         if (eventCode == null) return;
-
         memoryListener = db.collection("events").document(eventCode).collection("memories")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener((snapshots, e) -> {
-                    if (e != null) {
-                        Log.e("WallActivity", "Listen failed.", e);
-                        return;
-                    }
+                    if (e != null) return;
                     memoryList.clear();
                     for (QueryDocumentSnapshot doc : snapshots) {
-                        Memory memory = doc.toObject(Memory.class);
-                        memoryList.add(memory);
+                        memoryList.add(doc.toObject(Memory.class));
                     }
                     adapter.notifyDataSetChanged();
                 });
@@ -122,7 +188,6 @@ public class WallActivity extends AppCompatActivity {
                     db.collection("events").document(eventCode).collection("memories")
                             .document(memory.getMemoryId()).delete()
                             .addOnSuccessListener(aVoid -> {
-                                // הקטנת המונה של המשתמש שהעלה את התמונה (לא בהכרח המשתמש הנוכחי)
                                 String uploaderUid = memory.getUploaderUid();
                                 if (uploaderUid != null) {
                                     db.collection("users").document(uploaderUid)
@@ -165,15 +230,8 @@ public class WallActivity extends AppCompatActivity {
 
             holder.tvGreeting.setText(memory.getGreeting());
             holder.tvUser.setText("נשלח על ידי " + memory.getUserName());
-            
-            Glide.with(holder.itemView.getContext())
-                    .load(memory.getImageUrl())
-                    .centerCrop()
-                    .into(holder.ivImage);
+            Glide.with(holder.itemView.getContext()).load(memory.getImageUrl()).centerCrop().into(holder.ivImage);
 
-            // לוגיקת הצגת כפתור מחיקה:
-            // 1. אם אני המעלה של התמונה
-            // 2. אם אני יוצר האירוע (מנהל האירוע)
             boolean isUploader = currentUid != null && currentUid.equals(memory.getUploaderUid());
             boolean isEventCreator = currentUid != null && currentUid.equals(eventCreatorUid);
 
