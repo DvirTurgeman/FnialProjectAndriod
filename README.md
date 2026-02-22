@@ -57,6 +57,9 @@ using Firebase-powered real-time updates.
   <p align="center"><i>Live statistics dashboard using <b>Collection Group Queries</b> to aggregate user contributions across multiple sub-collections in real-time.</i></p>
 </details>
 
+## 🎬 Demo
+
+https://vimeo.com/1167180286
 
 ------------------------------------------------------------------------
 ## 🚀 Key Features
@@ -167,9 +170,6 @@ event access.
 
 ------------------------------------------------------------------------
 
-## 🎬 Demo
-
-https://vimeo.com/1167180286
 
 ------------------------------------------------------------------------
 
