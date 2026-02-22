@@ -142,34 +142,71 @@ https://vimeo.com/1167180286
 
 ## 🧠 Challenges & Solutions
 
-### Real-Time Updates
-
-Implemented Firestore SnapshotListeners to enable instant UI updates
-without manual refresh.
-
-### Data Normalization
-
-Used reference-based structure to avoid duplication and maintain a
-single source of truth.
-
-### Cross-Collection Statistics
-
-Used Collection Group Queries to efficiently calculate total shared
-memories.
-
-### Image Performance Optimization
-
-Integrated Glide for caching and async image loading to prevent memory
-issues.
-
-### Security Enforcement
-
-Applied Firebase Security Rules and user validation before allowing
-event access.
+<details>
+  <summary><b>1. The "UI Flicker" Challenge (Auth Validation)</b></summary>
+  <br>
+  <p align="center">
+    <img src="https://github.com/user-attachments/assets/f1af93dc-5a72-45ff-b428-9346d4c83958" width="600" />
+    <img src="https://github.com/user-attachments/assets/fdf8e713-fe1a-4238-b6f0-42f1f6086917" width="600" />
+  </p>
+  <p align="center">
+  <b>Problem:</b> The app would flash the main dashboard for a second before redirecting to the login screen.<br>
+  <b>Solution:</b> I refactored the <code>onCreate</code> logic to check for <code>currentUser</code> <b>before</b> calling <code>setContentView</code>. If no user is found, the app immediately launches the Sign-In intent, ensuring a seamless and secure entry.
+  </p>
+</details>
 
 
-------------------------------------------------------------------------
+<details>
+  <summary><b>2. Data Normalization & Integrity</b></summary>
+  <br>
+  <p align="center">
+    <img src="https://github.com/user-attachments/assets/3ff637cd-26fc-475d-b0c4-941f0c22f206" width="600" />
+    <img src="https://github.com/user-attachments/assets/462f8d76-d9c3-4991-8e5e-5319ecd058ea" width="600" />
+    <img src="https://github.com/user-attachments/assets/89c3b4d0-caea-4b24-94ca-cb89839a2338" width="600" />
+  </p>
+  <p align="center">
+  <b>Problem:</b> Duplicating full event data inside user documents led to sync issues and bloated database storage.<br>
+  <b>Solution:</b> I implemented a <b>Reference-based architecture</b>. The user document now stores only an array of <code>myEventIds</code> using <code>FieldValue.arrayUnion</code>. This ensures a "Single Source of Truth" where event updates reflect globally for all participants.
+  </p>
+</details>
 
+
+<details>
+  <summary><b>3. Real-Time Sync without Manual Refresh</b></summary>
+  <br>
+  <p align="center">
+    <img src="https://github.com/user-attachments/assets/54698de1-658a-435f-a0c1-5d2f01dd6171" width="600" />
+  </p>
+  <p align="center">
+  <b>Problem:</b> Static lists required users to exit and re-enter the screen to see new memories.<br>
+  <b>Solution:</b> I implemented <b>Firestore SnapshotListeners</b>. This creates a persistent "handshake" with the database, pushing new data to the <code>RecyclerView</code> instantly as it's uploaded, providing a true live-feed experience.
+  </p>
+</details>
+
+<details>
+  <summary><b>4. Real-time Data Denormalization & Atomic Counters</b></summary>
+  <br>
+  <p align="center">
+    <img src="https://github.com/user-attachments/assets/7e304517-f807-4f97-89c1-d4077313f9e6" width="600" />
+    <img src="https://github.com/user-attachments/assets/bf7d97a2-14f7-4862-b95b-e13e7f8cd03a" width="600" />
+  </p>
+  <p align="center">
+  <b>Problem:</b> Counting user memories across thousands of nested sub-collections (Events -> Memories) is traditionally slow and expensive ($O(N)$) in NoSQL databases.<br>
+  <b>Solution:</b> I implemented a <b>Denormalized Counter Strategy</b>. Instead of querying the entire database, I utilized <code>FieldValue.increment()</code> for atomic updates and <b>Firebase Write Batches</b> to keep user statistics in sync during memory creation and event deletion. This ensures <b>O(1) read performance</b> for the Profile screen, providing an instant user experience.
+  </p>
+</details>
+
+<details>
+  <summary><b>5. Memory Management & Image Scaling</b></summary>
+  <br>
+  <p align="center">
+    <img src="https://github.com/user-attachments/assets/4012aca5-ee76-4fad-ac6b-f8fb6702ca89" width="600" />
+  </p>
+  <p align="center">
+  <b>Problem:</b> Loading multiple high-resolution photos from Firebase Storage caused <code>OutOfMemory</code> crashes and laggy scrolling.<br>
+  <b>Solution:</b> Integrated the <b>Glide Library</b>. Glide handles asynchronous loading, smart disk caching, and automatic image downsampling, ensuring the app remains fast and stable even with heavy media content.
+  </p>
+</details>
 
 ------------------------------------------------------------------------
 
