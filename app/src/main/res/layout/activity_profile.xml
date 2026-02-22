@@ -105,7 +105,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="אירועים שביקרת"
+                            android:text="אירועים שביקרתי"
                             android:textSize="12sp"
                             android:textColor="#8E8E93"/>
                     </LinearLayout>
@@ -135,7 +135,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="זכרונות ששיתפת"
+                            android:text="זכרונות ששיתפתי"
                             android:textSize="12sp"
                             android:textColor="#8E8E93"/>
                     </LinearLayout>

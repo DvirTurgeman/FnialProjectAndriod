@@ -2,10 +2,10 @@ package com.example.fnialprojectandriod;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
+
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
-                .setLogo(R.mipmap.ic_launcher) // החלפתי ללוגו ברירת מחדל אם אין לך ic_icon_app
+                .setLogo(R.mipmap.ic_launcher)
                 .setTheme(R.style.Theme_FnialProjectAndriod)
                 .build();
         signInLauncher.launch(signInIntent);
